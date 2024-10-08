@@ -11,3 +11,5 @@ public_transport_path = os.path.join(current_dir,'public_transport.csv')
 
 df = pd.read_csv(countries_path)
 result_transport = pd.read_csv(public_transport_path)
+
+result_transport.to_csv("result_transport.csv")

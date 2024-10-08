@@ -56,3 +56,5 @@ result = result.merge(healthy,how="left", left_on=["Country Code","Year"], right
 # Résultat
 #===========================
 result_agro = result.drop("Time",axis=1)
+result_agro.replace("..","",inplace=True)
+result_agro.to_csv("result_agro.csv")

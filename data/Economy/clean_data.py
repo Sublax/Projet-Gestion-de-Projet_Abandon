@@ -181,5 +181,6 @@ result = result.merge(classenrollment,how="left", left_on=["Code","Year"], right
 #===========================
 # Résultat
 #===========================
-result_economy = result.drop(columns=["Country Name_x","Country Code_x","Country Name_y","Country Code_y"])
+result_economy = result.drop(columns=["Country Name_x","Country Code_x","Country Name_y","Country Code_y","Country Name","Country Code"])
 result_economy.replace("..","",inplace=True)
+result_economy.to_csv("result_eco.csv")
