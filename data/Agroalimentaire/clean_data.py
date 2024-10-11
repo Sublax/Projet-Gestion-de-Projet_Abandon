@@ -1,8 +1,24 @@
+#=============================
+# Importations libraries
+#=============================
 import pandas as pd
-import matplotlib.pyplot as plt
 import country_converter as coco
 import os
 import numpy as np
+
+#=============================
+# Fonctions
+#=============================
+def standardisation(df,nom_col):
+    """
+    Fonction qui prend en paramètre le df et la colonne nom et la transforme en norme name_short (nom complet)
+    puis supprime les lignes not found 
+    """
+    cc = coco.CountryConverter()
+    df[nom_col] = cc.convert(df[nom_col],to = 'name_short')
+    df = df[~df[nom_col].str.contains("not found")]
+    return df
+
 
 def clean_dataworld(df,ValueName):
     """
@@ -45,9 +61,12 @@ result = clean_dataworld(df_cooking,"CleanFuelAndCookingEquipment")
 healthy_path = os.path.join(current_dir, 'CostHealthyFood.csv')
 #Pas de gâchis de variable :
 healthy = pd.read_csv(healthy_path, encoding="ISO-8859-1")
+#On supprime les colonnes inutiles (là c'est une classification)
 healthy.drop(["Classification Name","Classification Code","Country Name","Time Code"], axis=1, inplace=True)
 healthy.replace("",np.nan,inplace=True)
+#On supprime les NaN qui étaient avant des valeurs vides
 healthy.dropna(inplace=True)
+#On met les années en int
 healthy["Time"] = healthy["Time"].astype('int')
 result = result.merge(healthy,how="left", left_on=["Country Code","Year"], right_on=["Country Code","Time"])
 
@@ -55,6 +74,12 @@ result = result.merge(healthy,how="left", left_on=["Country Code","Year"], right
 #===========================
 # Résultat
 #===========================
+#On supprime la colonne Time
 result_agro = result.drop("Time",axis=1)
+#On remplace les ".."
 result_agro.replace("..","",inplace=True)
-result_agro.to_csv("result_agro.csv")
+result_agro.drop("Country Code",axis=1, inplace=True)
+#On standardise les noms des pays : 
+result_agro = standardisation(result_agro,"Country Name")
+
+result_agro.to_csv("result_agro.csv",index_label="id_agro")
