@@ -19,7 +19,7 @@ wage_path = os.path.join(current_dir, 'minimum_wage.csv')
 countries_path = os.path.join(current_dir, '..', 'countries.csv')
 agro_path = os.path.join(current_dir,'..','Agroalimentaire','global-food-prices.csv')
 
-df = pd.read_csv(countries_path)
+countries = pd.read_csv(countries_path)
 agro = pd.read_csv(agro_path)
 
 arrival_path = os.path.join(current_dir, 'arrivaltourists.csv')
@@ -47,19 +47,13 @@ def perf_coco(df2):
     Sortie : Comparaison entre aucun changement, coco_convert en name short et coco_convert en ISO2
     """
     print("===== Performance sans changement : ======")
-    set_pays = set(df["Name"])
+    set_pays = set(countries["Name"])
     set_df2 = set(df2)
     valeurs_communes = set_pays.intersection(set_df2)
     print(f"Valeur communes : {len(valeurs_communes)}/{len(df2)}")
 
     print("===== Performance short name pays : ======")
     set_df2 = set(coco.convert(names=df2,to='name_short'))
-    valeurs_communes = set_pays.intersection(set_df2)
-    print(f"Valeur communes : {len(valeurs_communes)}/{len(df2)}")
-
-    print("===== Performance code pays : ======")
-    set_pays = set(df["Code"])
-    set_df2 = set(coco.convert(names=df2,to='ISO2'))
     valeurs_communes = set_pays.intersection(set_df2)
     print(f"Valeur communes : {len(valeurs_communes)}/{len(df2)}")
 
@@ -183,6 +177,10 @@ result_education = result_education.dropna(subset=["PrimaryClassEnrollment(%)", 
 #On standardise les noms des pays : 
 result_education = standardisation(result_education, "Entity")
 
+#On remplace les noms des pays par l'id : 
+result_education = result_education.merge(countries,left_on="Entity", right_on="Name",how="left")
+result_education = result_education.drop(["Name","Entity"],axis=1).rename(columns={'id':'pays_id'})
+
 #On exporte en csv : 
 result_education.to_csv("result_educ.csv", index_label="id_educ")
 
@@ -197,6 +195,10 @@ result_economy.drop(["Code","country"],axis=1, inplace=True)
 
 #On standardise le nom des pays : 
 result_economy = standardisation(result_economy,"Entity")
+
+#Enfin on remplace les noms des pays par l'id : 
+result_economy = result_economy.merge(countries,left_on="Entity", right_on="Name",how="left")
+result_economy = result_economy.drop(["Name","Entity"],axis=1).rename(columns={'id':'pays_id'})
 
 #On exporte en csv : 
 result_economy.to_csv("result_eco.csv", index_label="id_eco")

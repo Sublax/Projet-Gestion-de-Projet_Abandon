@@ -48,7 +48,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 countries_path = os.path.join(current_dir, '..', 'countries.csv')
 cooking_path = os.path.join(current_dir,'Cooking.csv')
 
-df = pd.read_csv(countries_path)
+countries = pd.read_csv(countries_path)
 df_cooking= pd.read_csv(cooking_path)
 
 
@@ -82,4 +82,7 @@ result_agro.drop("Country Code",axis=1, inplace=True)
 #On standardise les noms des pays : 
 result_agro = standardisation(result_agro,"Country Name")
 
+#Enfin, on remplace les noms des pays par leur id dans la table country :
+result_agro = result_agro.merge(countries,left_on="Country Name", right_on="Name",how="left")
+result_agro = result_agro.drop(["Name","Country Name"],axis=1).rename(columns={'id':'pays_id'})
 result_agro.to_csv("result_agro.csv",index_label="id_agro")
